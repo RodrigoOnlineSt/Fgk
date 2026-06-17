@@ -1,7 +1,6 @@
 {
   "name": "pix-vagner",
   "version": "1.0.0",
-  "description": "Sistema Pix Mercado Pago",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
