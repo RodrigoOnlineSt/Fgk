@@ -1,6 +1,7 @@
 {
   "name": "pix-vagner",
   "version": "1.0.0",
+  "license": "ISC",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
