@@ -1,7 +1,6 @@
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
-const { v4: uuidv4 } = require('uuid'); // Adicionamos a biblioteca uuid
 const app = express();
 
 app.use(cors({ origin: '*' }));
@@ -14,8 +13,8 @@ app.post('/criar-pix', async (req, res) => {
             return res.status(400).json({ error: "Valor inválido" });
         }
 
-        // Criamos uma chave única (Idempotency-Key) para esta requisição
-        const idempotencyKey = uuidv4();
+        // Gera uma chave única simples sem precisar de bibliotecas extras
+        const idempotencyKey = Math.random().toString(36).substring(2) + Date.now().toString(36);
 
         const response = await axios.post('https://api.mercadopago.com/v1/payments', {
             transaction_amount: valor,
@@ -26,7 +25,7 @@ app.post('/criar-pix', async (req, res) => {
             headers: { 
                 'Authorization': `Bearer ${process.env.ACCESS_TOKEN}`,
                 'Content-Type': 'application/json',
-                'X-Idempotency-Key': idempotencyKey // A CHAVE QUE O MERCADO PAGO EXIGIU
+                'X-Idempotency-Key': idempotencyKey
             }
         });
 
