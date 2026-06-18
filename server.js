@@ -8,18 +8,15 @@ app.use(express.json());
 
 app.post('/criar-pix', async (req, res) => {
     try {
-        const valor = parseFloat(req.body.valor);
-        if (!valor || valor <= 0) return res.status(400).json({ error: "Valor inválido" });
-
         const response = await axios.post('https://api.mercadopago.com/v1/orders', {
             type: "qr",
-            total_amount: valor,
+            total_amount: parseFloat(req.body.valor),
             description: "Venda Loja",
             config: { qr: { mode: "static", external_pos_id: "SUC001POS001" } },
-            items: [{ title: "Produto", unit_price: valor, quantity: 1, unit_measure: "unit" }]
+            items: [{ title: "Produto", unit_price: parseFloat(req.body.valor), quantity: 1, unit_measure: "unit" }]
         }, {
             headers: { 
-                'Authorization': `Bearer ${process.env.ACCESS_TOKEN}`,
+                'Authorization': `Bearer ${process.env.ACCESS_TOKEN}`, // AQUI VAI O SEU APP_USR-...
                 'Content-Type': 'application/json',
                 'X-Idempotency-Key': Math.random().toString(36).substring(2)
             }
@@ -27,13 +24,11 @@ app.post('/criar-pix', async (req, res) => {
 
         res.json({
             id: response.data.id,
-            qr_data: response.data.type_response.qr_code // Ajustado para capturar o campo correto
+            qr_data: response.data.type_response.qr_code
         });
     } catch (e) {
-        // ESSA LINHA É A CHAVE: ela vai logar no painel da Render o erro real
-        const detalheErro = e.response ? e.response.data : e.message;
-        console.error("ERRO COMPLETO DO MERCADO PAGO:", JSON.stringify(detalheErro));
-        res.status(500).json({ error: "Erro no servidor: " + JSON.stringify(detalheErro) });
+        console.error("ERRO:", e.response ? e.response.data : e.message);
+        res.status(500).json({ error: "Erro de autenticação ou token" });
     }
 });
 
